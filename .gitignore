@@ -1,0 +1,36 @@
+# Node.js
+**/node_modules/
+**/dist/
+**/build/
+
+# TypeScript
+**/*.tsbuildinfo
+
+# Environment variables
+**/.env
+
+# Prisma
+**/prisma/dev.db
+**/prisma/dev.db-journal
+**/.prisma/
+
+# Logs
+**/logs/
+**/*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# VS Code settings
+.vscode/
+
+# OS/macOS/Linux system files
+.DS_Store
+Thumbs.db
+
+# Ignore generated Prisma client if not checked in
+# (uncomment below if you DON’T want to commit Prisma Client)
+# **/src/generated/
+
+# Others
+coverage/
