@@ -40,7 +40,7 @@ export const getAppointmentForDentist = async (dentistId: number) => {
 }
 
 export const cancelAppointment = async (appointmentId: number) => {
-    return await prisma.appointment.delete({
+    return await prisma.appointment.update({
         where: { id: appointmentId },
         data: { status: 'cancelled' }
     });

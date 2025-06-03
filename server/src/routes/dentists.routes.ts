@@ -1,15 +1,16 @@
 import express from 'express';
 import * as DentistController from '../controllers/dentists.controller';
+import { requireAuth } from '../middlewares/auth';
 
 const router = express.Router();
 
 // Route to get all dentists
-router.get('/', DentistController.getAllDentists);
+router.get('/', requireAuth, DentistController.getAllDentists);
 
 // Route to get a dentist by ID
-router.get('/:id', DentistController.getDentistById);
+router.get('/:id', requireAuth, DentistController.getDentistById);
 
 // Route to create a new dentist
-router.post('/', DentistController.createDentist);
+router.post('/', requireAuth, DentistController.createDentist);
 
 export default router;
