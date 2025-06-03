@@ -34,3 +34,18 @@ Thumbs.db
 
 # Others
 coverage/
+
+# ReactJS + Vite/CRA client build (inside /client)
+client/node_modules/
+client/dist/
+client/build/
+client/.env
+client/.env.*  # In case you use .env.development, .env.production, etc.
+client/.vite/  # If using Vite
+client/coverage/
+client/.next/  # If you ever switch to Next.js
+
+# Optional IDE/editor settings for client
+client/.vscode/
+client/.DS_Store
+client/Thumbs.db
