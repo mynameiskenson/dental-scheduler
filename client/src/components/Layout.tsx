@@ -1,13 +1,9 @@
-import type { ReactNode } from "react";
+import { Outlet } from "react-router-dom";
 import bgVideo from "@/assets/background.mp4";
 import Header from "./Header";
 import Footer from "./Footer";
 
-interface LayoutProps {
-    children: ReactNode;
-}
-
-export default function Layout({ children }: LayoutProps) {
+export default function Layout() {
     return (
         <div className="relative w-screen h-screen overflow-hidden text-white">
             {/* Background Video */}
@@ -27,7 +23,9 @@ export default function Layout({ children }: LayoutProps) {
             {/* Page Structure */}
             <div className="relative flex flex-col justify-between h-full z-10">
                 <Header />
-                <main className="flex-1">{children}</main>
+                <main className="flex-1 flex items-center justify-center">
+                    <Outlet />
+                </main>
                 <Footer />
             </div>
         </div>

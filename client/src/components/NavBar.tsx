@@ -1,8 +1,23 @@
 import { useState } from "react";
+import { useDispatch } from "react-redux";
+import { useSelector } from "react-redux";
+import { useNavigate } from "react-router-dom";
 import { FaBars, FaTimes } from "react-icons/fa";
+import { Link } from "react-router-dom";
+import type { RootState } from "@/state/store";
 
 export default function Navbar() {
     const [isOpen, setIsOpen] = useState(false);
+    const dispatch = useDispatch();
+    const navigate = useNavigate();
+
+    // Assuming you have a user state in your Redux store
+    const user = useSelector((state: RootState) => state.auth.user);
+
+    const handleLogout = () => {
+        dispatch({ type: "auth/logout" });
+        navigate("/");
+    }
 
     return (
         <nav className="fixed top-0 left-0 w-full z-20 bg-transparent backdrop-blur-sm">
@@ -15,30 +30,45 @@ export default function Navbar() {
                 {/* Desktop Menu */}
                 <ul className="hidden md:flex space-x-8 text-white">
                     <li>
-                        <a href="#home" className="hover:text-blue-400 transition">
+                        <Link to="/" className="hover:text-blue-400 transition">
                             Home
-                        </a>
+                        </Link>
                     </li>
                     <li>
-                        <a href="#book" className="hover:text-blue-400 transition">
+                        <Link to="/book" className="hover:text-blue-400 transition">
                             Book Now!
-                        </a>
+                        </Link>
                     </li>
                     <li>
-                        <a href="#about" className="hover:text-blue-400 transition">
+                        <Link to="/about" className="hover:text-blue-400 transition">
                             About Us
-                        </a>
+                        </Link>
                     </li>
-                    <li>
-                        <a href="#login" className="hover:text-blue-400 transition">
-                            Login
-                        </a>
-                    </li>
+                    {user ? (
+                        <li>
+                            <a
+                                href="#"
+                                onClick={(e) => {
+                                    e.preventDefault(); // Prevent page jump
+                                    handleLogout();
+                                }}
+                                className="hover:text-blue-400 transition"
+                            >
+                                Logout
+                            </a>
+                        </li>
+                    ) : (
+                        <li>
+                            <Link to="/login" className="hover:text-blue-400 transition">
+                                Login
+                            </Link>
+                        </li>
+                    )}
                 </ul>
 
                 {/* Mobile Hamburger Button */}
                 <button
-                    className="md:hidden bg-black text-black p-2 rounded focus:outline-none z-40"
+                    className="md:hidden bg-black text-white p-2 rounded focus:outline-none z-40"
                     onClick={() => setIsOpen(!isOpen)}
                     aria-label="Toggle menu"
                 >
@@ -52,34 +82,48 @@ export default function Navbar() {
           ${isOpen ? "opacity-100 translate-y-0" : "opacity-0 -translate-y-4 pointer-events-none"}
           bg-transparent text-black backdrop-blur-md flex flex-col items-center space-y-6 py-6 md:hidden z-20`}
             >
-                <a
-                    href="#home"
+                <Link
+                    to="/"
                     className="hover:text-blue-600 transition-colors duration-200"
                     onClick={() => setIsOpen(false)}
                 >
                     Home
-                </a>
-                <a
-                    href="#book"
+                </Link>
+                <Link
+                    to="/book"
                     className="hover:text-blue-600 transition-colors duration-200"
                     onClick={() => setIsOpen(false)}
                 >
                     Book Now!
-                </a>
-                <a
-                    href="#about"
+                </Link>
+                <Link
+                    to="/about"
                     className="hover:text-blue-600 transition-colors duration-200"
                     onClick={() => setIsOpen(false)}
                 >
                     About Us
-                </a>
-                <a
-                    href="#login"
-                    className="hover:text-blue-600 transition-colors duration-200"
-                    onClick={() => setIsOpen(false)}
-                >
-                    Login
-                </a>
+                </Link>
+                {user ? (
+                    <a
+                        href="#"
+                        onClick={(e) => {
+                            e.preventDefault();
+                            handleLogout();
+                            setIsOpen(false); // Close mobile menu
+                        }}
+                        className="hover:text-blue-600 transition-colors duration-200"
+                    >
+                        Logout
+                    </a>
+                ) : (
+                    <Link
+                        to="/login"
+                        className="hover:text-blue-600 transition-colors duration-200"
+                        onClick={() => setIsOpen(false)}
+                    >
+                        Login
+                    </Link>
+                )}
             </div>
         </nav>
     );
