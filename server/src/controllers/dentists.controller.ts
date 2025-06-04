@@ -31,3 +31,19 @@ export const createDentist = async (req: Request, res: Response, next: NextFunct
         next(error);
     }
 }
+
+export const getAvailableSlot = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const dentistId = parseInt(req.params.id);
+        const dateStr = req.query.date as string;
+
+        if (!dentistId || !dateStr) {
+            res.status(400).json({ message: "Dentist ID and date are required" });
+            return;
+        }
+        const availableSlots = await DentistService.getAvailableSlot(dentistId, new Date(dateStr));
+        res.status(200).json(availableSlots);
+    } catch (error) {
+        next(error);
+    }
+}
