@@ -33,28 +33,32 @@ export const updateDentistProfile = async (id: number, data: Partial<{
 };
 
 export const getAvailableSlot = async (dentistId: number, date: Date) => {
-    const startHour = 9;
-    const endHour = 17;
+    const startHour = 1; // 1 AM UTC = 9 AM PHT
+    const endHour = 9;   // 9 AM UTC = 5 PM PHT
     const interval = 30; // in minutes
 
-    const selectedDate = new Date(date);
+    // Create a new date at UTC midnight for the selected day
+    const selectedDateUTC = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
+
     const now = new Date();
     const slots: Date[] = [];
 
+    // Generate time slots for the selected date
     for (let hour = startHour; hour < endHour; hour++) {
         for (let minute = 0; minute < 60; minute += interval) {
-            const slotTime = new Date(selectedDate);
-            slotTime.setHours(hour, minute, 0, 0);
+            const slotTime = new Date(selectedDateUTC);
+            slotTime.setUTCHours(hour, minute, 0, 0);
             if (isBefore(now, slotTime)) slots.push(slotTime);
         }
     }
 
+    // Fetch booked appointments for the dentist on the selected date
     const bookApointments = await prisma.appointment.findMany({
         where: {
             dentistId: dentistId,
             scheduledAt: {
-                gte: startOfDay(selectedDate),
-                lte: endOfDay(selectedDate),
+                gte: startOfDay(selectedDateUTC),
+                lte: endOfDay(selectedDateUTC),
             },
         },
         select: {
@@ -63,12 +67,13 @@ export const getAvailableSlot = async (dentistId: number, date: Date) => {
     });
 
     const bookTimes = bookApointments.map(appointment => new Date(appointment.scheduledAt).toISOString());
-    const availableSlots = slots.filter(slot => {
-        const slotTime = slot.toISOString();
-        !bookTimes.includes(slotTime);
-    });
 
-    return availableSlots
+    const slotsWithavailability = slots.map(slot => ({
+        datetime: slot.toISOString(),
+        available: !bookTimes.includes(slot.toISOString()),
+    }));
+
+    return slotsWithavailability
 }
 
 

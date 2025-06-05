@@ -5,7 +5,7 @@ import Footer from "./Footer";
 
 export default function Layout() {
     return (
-        <div className="relative w-screen h-screen overflow-hidden text-white">
+        <div className="relative w-screen h-screen text-white">
             {/* Background Video */}
             <video
                 autoPlay
@@ -21,9 +21,9 @@ export default function Layout() {
             <div className="absolute w-full h-full bg-black/70 -z-10" />
 
             {/* Page Structure */}
-            <div className="relative flex flex-col justify-between h-full z-10">
+            <div className="relative flex flex-col h-full z-10">
                 <Header />
-                <main className="flex-1 flex items-center justify-center">
+                <main className="flex-1 overflow-auto flex justify-center items-center px-4 py-6">
                     <Outlet />
                 </main>
                 <Footer />

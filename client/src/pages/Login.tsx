@@ -1,21 +1,19 @@
 import { useState } from "react";
 import { useDispatch } from "react-redux";
-import { setUser } from "@/state/authSlice";
-import { loginUser } from "@/services/authService";
+import type { AppDispatch } from "@/state/store";
+import { loginThunk } from "@/state/authThunks";
 import { useNavigate } from "react-router-dom";
 
 const Login = () => {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
-    const dispatch = useDispatch();
+    const dispatch = useDispatch<AppDispatch>();
     const navigate = useNavigate();
 
     const handleLogin = async (e: React.FormEvent) => {
         e.preventDefault();
         try {
-            // Redirect or show success message
-            const userData = await loginUser({ email, password });
-            dispatch(setUser(userData));
+            await dispatch(loginThunk({ email, password }));
             navigate("/dashboard"); // Redirect to dashboard or home page
         } catch (error) {
             // Handle error (e.g., show error message)
