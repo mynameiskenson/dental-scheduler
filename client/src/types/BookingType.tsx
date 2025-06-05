@@ -19,6 +19,7 @@ export interface Appointment {
     reason?: string;
     status: 'scheduled' | 'cancelled' | 'completed';
     createdAt: string; // ISO 8601 format
+    dentist?: Dentist;
 }
 
 export interface BookAppointmentDTO {
