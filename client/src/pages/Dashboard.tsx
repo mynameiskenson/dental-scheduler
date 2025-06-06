@@ -1,24 +1,28 @@
 import { useEffect, useState } from "react";
 import { getUserAppointments, cancellAppointment } from "@/services/appointmentService";
 import type { Appointment } from "@/types/BookingType";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
+import RescheduleModal from "@/components/RescheduleModal";
+import { closeAppointmentModal, openAppointmentModal } from "@/state/modalSlice";
 import type { RootState } from "@/state/store";
 
 const Dashboard = () => {
     const [appointments, setAppointments] = useState<Appointment[]>([]);
     const user = useSelector((state: RootState) => state.auth.user);
+    const dispatch = useDispatch();
+
+    const fetchAppointments = async () => {
+        if (user) {
+            try {
+                const data = await getUserAppointments(Number(user.id));
+                setAppointments(data);
+            } catch (error) {
+                console.error("Failed to fetch appointments:", error);
+            }
+        }
+    };
 
     useEffect(() => {
-        const fetchAppointments = async () => {
-            if (user) {
-                try {
-                    const data = await getUserAppointments(Number(user.id));
-                    setAppointments(data);
-                } catch (error) {
-                    console.error("Failed to fetch appointments:", error);
-                }
-            }
-        };
         fetchAppointments();
     }, [user]);
 
@@ -31,9 +35,14 @@ const Dashboard = () => {
         }
     };
 
+    const handleRescheduleSuccess = () => {
+        fetchAppointments();
+        dispatch(closeAppointmentModal());
+    }
+
     return (
         <div className="flex-1 flex items-center justify-center px-4">
-            <div className="p-6 rounded-2xl shadow-lg border border-white/30 w-full max-w-3xl bg-white/10 backdrop-blur-md">
+            <div className="p-6 rounded-2xl shadow-lg border border-white/30 w-full max-w-3xl bg-white/1 backdrop-blur-md">
                 <h2 className="text-3xl mb-6 font-semibold text-white text-center">
                     My Appointments
                 </h2>
@@ -44,28 +53,41 @@ const Dashboard = () => {
                     <>
                         {/* Mobile view: stacked cards */}
                         <div className="sm:hidden space-y-4">
-                            {appointments.map((appt) => (
-                                <div
-                                    key={appt.id}
-                                    className="bg-white/10 border border-white/20 rounded-xl p-4 text-white shadow"
-                                >
-                                    <p><strong>Dentist:</strong> {appt.dentist?.fullName ?? "Unknown"}</p>
-                                    <p><strong>Date:</strong> {new Date(appt.scheduledAt).toLocaleString("en-US", {
-                                        dateStyle: "medium",
-                                        timeStyle: "short",
-                                        timeZone: "Asia/Singapore",
-                                    })}</p>
-                                    <p><strong>Status:</strong> {appt.status}</p>
-                                    <div className="mt-3">
-                                        <button
-                                            onClick={() => handleCancelAppointment(Number(appt.id))}
-                                            className="bg-red-500 hover:bg-red-600 text-white px-4 py-1.5 rounded-xl text-sm"
-                                        >
-                                            Cancel
-                                        </button>
+                            {appointments.map((appt) => {
+                                const isCancelled = appt.status.toLowerCase() === "cancelled";
+                                return (
+                                    <div
+                                        key={appt.id}
+                                        className="bg-white/10 border border-white/20 rounded-xl p-4 text-white shadow"
+                                    >
+                                        <p><strong>Dentist:</strong> {appt.dentist?.fullName ?? "Unknown"}</p>
+                                        <p><strong>Date:</strong> {new Date(appt.scheduledAt).toLocaleString("en-US", {
+                                            dateStyle: "medium",
+                                            timeStyle: "short",
+                                            timeZone: "Asia/Singapore",
+                                        })}</p>
+                                        <p><strong>Status:</strong> {appt.status}</p>
+                                        <div className="mt-3">
+                                            <button
+                                                onClick={() => dispatch(openAppointmentModal(appt))}
+                                                disabled={isCancelled}
+                                                hidden={isCancelled}
+                                                className="bg-blue-500 hover:bg-blue-600 tex-white px-4 py-1.5 rounded-xl text-sm"
+                                            >
+                                                Reschedule
+                                            </button>
+                                            <button
+                                                onClick={() => handleCancelAppointment(Number(appt.id))}
+                                                disabled={isCancelled}
+                                                hidden={isCancelled}
+                                                className="bg-red-500 hover:bg-red-600 text-white px-4 py-1.5 rounded-xl text-sm"
+                                            >
+                                                Cancel
+                                            </button>
+                                        </div>
                                     </div>
-                                </div>
-                            ))}
+                                );
+                            })}
                         </div>
 
                         {/* Desktop/tablet view: table layout */}
@@ -80,36 +102,53 @@ const Dashboard = () => {
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {appointments.map((appt) => (
-                                        <tr
-                                            key={appt.id}
-                                            className="border-b border-white/20 hover:bg-white/5 transition"
-                                        >
-                                            <td className="py-3 px-3">{appt.dentist?.fullName ?? "Unknown Dentist"}</td>
-                                            <td className="py-3 px-3">
-                                                {new Date(appt.scheduledAt).toLocaleString("en-US", {
-                                                    dateStyle: "medium",
-                                                    timeStyle: "short",
-                                                    timeZone: "Asia/Singapore",
-                                                })}
-                                            </td>
-                                            <td className="py-3 px-3 capitalize">{appt.status}</td>
-                                            <td className="py-3 px-3 text-center space-x-2">
-                                                <button
-                                                    onClick={() => handleCancelAppointment(Number(appt.id))}
-                                                    className="bg-red-500 hover:bg-red-600 text-white px-4 py-1.5 rounded-xl text-sm"
-                                                >
-                                                    Cancel
-                                                </button>
-                                            </td>
-                                        </tr>
-                                    ))}
+                                    {appointments.map((appt) => {
+                                        const isCancelled = appt.status.toLowerCase() === "cancelled";
+                                        return (
+                                            <tr
+                                                key={appt.id}
+                                                className="border-b border-white/20 hover:bg-white/5 transition"
+                                            >
+                                                <td className="py-3 px-3">{appt.dentist?.fullName ?? "Unknown Dentist"}</td>
+                                                <td className="py-3 px-3">
+                                                    {new Date(appt.scheduledAt).toLocaleString("en-US", {
+                                                        dateStyle: "medium",
+                                                        timeStyle: "short",
+                                                        timeZone: "Asia/Singapore",
+                                                    })}
+                                                </td>
+                                                <td className="py-3 px-3 capitalize">{appt.status}</td>
+                                                <td className="py-3 px-3 text-center space-x-2">
+                                                    <button
+                                                        onClick={() => dispatch(openAppointmentModal(appt))}
+                                                        disabled={isCancelled}
+                                                        hidden={isCancelled}
+                                                        className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-1.5 rounded-xl text-sm"
+                                                    >
+                                                        Reschedule
+                                                    </button>
+                                                    <button
+                                                        onClick={() => handleCancelAppointment(Number(appt.id))}
+                                                        disabled={isCancelled}
+                                                        hidden={isCancelled}
+                                                        className="bg-red-500 hover:bg-red-600 text-white px-4 py-1.5 rounded-xl text-sm"
+                                                    >
+                                                        Cancel
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                        );
+                                    })}
                                 </tbody>
                             </table>
                         </div>
                     </>
                 )}
             </div>
+
+            {/* Reschedule modal rendered conditionally via Redux state */}
+            <RescheduleModal onSuccess={handleRescheduleSuccess} />
+
         </div>
     );
 }

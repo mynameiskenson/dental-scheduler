@@ -14,6 +14,9 @@ router.get('/user/:userId', requireAuth, AppointmentController.getAppointmentsFo
 router.get('/dentist/:dentistId', requireAuth, AppointmentController.getAppointmentForDentist);
 
 // Route to cancel an appointment by ID
-router.patch('/:id', requireAuth, AppointmentController.cancelAppointment);
+router.patch('/:appointmentId', requireAuth, AppointmentController.cancelAppointment);
+
+// Route to reschedule an appointment by ID
+router.patch('/:appointmentId/reschedule', requireAuth, AppointmentController.rescheduleAppointment);
 
 export default router;

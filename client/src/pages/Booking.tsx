@@ -79,7 +79,7 @@ const Book = () => {
                     e.preventDefault();
                     if (selectedSlot) handleBookAppointment(selectedSlot);
                 }}
-                className="p-6 rounded-2xl shadow-lg border border-white/30 w-full max-w-md bg-white/10 backdrop-blur-md"
+                className="p-6 rounded-2xl shadow-lg border border-white/30 w-full max-w-md bg-white/1 backdrop-blur-md"
             >
                 <h2 className="text-3xl mb-6 font-semibold text-white text-center">
                     Book an Appointment

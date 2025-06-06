@@ -46,3 +46,26 @@ export const cancelAppointment = async (appointmentId: number) => {
     });
 }
 
+export const rescheduleAppointment = async ({
+    userId,
+    dentistId,
+    scheduledAt,
+    reason,
+}: {
+    userId: number;
+    dentistId: number;
+    scheduledAt: string; // ISO 8601 format
+    reason?: string;
+}, appointmentId: number
+) => {
+    return await prisma.appointment.update({
+        where: { id: appointmentId },
+        data: {
+            userId,
+            dentistId,
+            scheduledAt,
+            reason,
+        }
+    });
+}
+

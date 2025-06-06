@@ -36,11 +36,24 @@ export const getAppointmentForDentist = async (req: Request, res: Response, next
     }
 }
 
+export const rescheduleAppointment = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const newAppointment = await AppointmentService.rescheduleAppointment(req.body, Number(req.params.appointmentId));
+        if (!newAppointment) {
+            res.status(404).json({ message: "Appointment not rescheduled" });
+            return;
+        }
+        res.status(200).json({ message: "Appointment rescheduled successfully" });
+    } catch (error) {
+        next(error);
+    }
+}
+
 export const cancelAppointment = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const appointment = await AppointmentService.cancelAppointment(Number(req.params.id));
+        const appointment = await AppointmentService.cancelAppointment(Number(req.params.appointmentId));
         if (!appointment) {
-            res.status(404).json({ message: "Appointment not found" });
+            res.status(404).json({ message: "Appointment not cancelled" });
             return;
         }
         res.status(200).json({ message: "Appointment cancelled successfully" });

@@ -20,7 +20,7 @@ export default function Navbar() {
     }
 
     return (
-        <nav className="fixed top-0 left-0 w-full z-20 bg-transparent backdrop-blur-sm">
+        <nav className="fixed top-0 left-0 w-full z-20 bg-white/1 backdrop-blur-md">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between h-16">
                 {/* Logo / Brand */}
                 <div className="text-white font-bold text-xl cursor-pointer select-none">
@@ -80,7 +80,7 @@ export default function Navbar() {
             <div
                 className={`fixed top-16 left-0 w-full transform transition-all duration-300 ease-in-out 
           ${isOpen ? "opacity-100 translate-y-0" : "opacity-0 -translate-y-4 pointer-events-none"}
-          bg-transparent text-black backdrop-blur-md flex flex-col items-center space-y-6 py-6 md:hidden z-20`}
+          bg-white/1 backdrop-blur-md text-black flex flex-col items-center space-y-6 py-6 md:hidden z-20`}
             >
                 <Link
                     to="/"

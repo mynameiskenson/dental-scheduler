@@ -60,6 +60,9 @@ export const getAvailableSlot = async (dentistId: number, date: Date) => {
                 gte: startOfDay(selectedDateUTC),
                 lte: endOfDay(selectedDateUTC),
             },
+            status: {
+                not: "cancelled"
+            }
         },
         select: {
             scheduledAt: true,
