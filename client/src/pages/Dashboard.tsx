@@ -23,7 +23,9 @@ const Dashboard = () => {
     };
 
     useEffect(() => {
-        fetchAppointments();
+        if (user) {
+            fetchAppointments();
+        }
     }, [user]);
 
     const handleCancelAppointment = async (appointmentId: number) => {

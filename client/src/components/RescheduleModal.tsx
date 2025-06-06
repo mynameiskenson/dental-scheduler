@@ -2,7 +2,7 @@
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { closeAppointmentModal } from "@/state/modalSlice";
-import type { RootState } from "@/state/store";
+import type { AppDispatch, RootState } from "@/state/store";
 import { getDentistSlots } from "@/services/bookService";
 import { rescheduleAppointment } from "@/services/appointmentService";
 import type { Slot } from "@/types/BookingType";
@@ -14,7 +14,7 @@ type RescheduleModalProps = {
 };
 
 const RescheduleModal: React.FC<RescheduleModalProps> = ({ onSuccess }) => {
-    const dispatch = useDispatch();
+    const dispatch = useDispatch<AppDispatch>();
     const { isOpen, appointment } = useSelector((state: RootState) => state.modal);
 
     const [selectedDate, setSelectedDate] = useState<Date | null>(null);

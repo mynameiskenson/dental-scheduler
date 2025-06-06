@@ -11,6 +11,7 @@ export const loginThunk = (credentials: {
             const userData = await loginUser(credentials);
             dispatch(setUser({ user: userData.user, token: userData.token }));
             localStorage.setItem("token", userData.token); // Store token in localStorage
+            localStorage.setItem("user", JSON.stringify(userData.user))
         } catch (error) {
             console.error("Login failed:", error);
             throw error; // Re-throw the error for further handling if needed
