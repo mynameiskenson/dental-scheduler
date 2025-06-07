@@ -16,6 +16,7 @@ const AppointmentForm = () => {
     const [selectedSlot, setSelectedSlot] = useState<string | null>(null);
     const [slots, setSlots] = useState<Slot[]>([]);
     const [reason, setReason] = useState<string>("");
+    const [loading, setLoading] = useState(false);
 
     const user = useSelector((state: RootState) => state.auth.user);
     const navigate = useNavigate();
@@ -65,6 +66,7 @@ const AppointmentForm = () => {
         }
 
         try {
+            setLoading(true);
             await bookAppointment({
                 userId: Number(user.id),
                 dentistId: Number(selectedDentistId),
@@ -85,6 +87,8 @@ const AppointmentForm = () => {
         } catch (error) {
             console.error("Failed to book appointment:", error);
             alert("Something went wrong. Please try again.");
+        } finally {
+            setLoading(false);
         }
     };
 
@@ -184,9 +188,9 @@ const AppointmentForm = () => {
                 <button
                     type="submit"
                     className="w-full p-3 rounded-xl bg-blue-600 hover:bg-blue-700 text-white transition-colors"
-                    disabled={!selectedSlot}
+                    disabled={!selectedSlot || loading}
                 >
-                    Confirm Appointment
+                    {loading ? "Scheduling..." : "Confirm Appointment"}
                 </button>
             </form>
         </div>

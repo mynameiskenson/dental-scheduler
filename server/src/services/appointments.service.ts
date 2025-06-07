@@ -1,4 +1,5 @@
 import { prisma } from "../lib/prisma";
+import { notify } from "../lib/notify";
 
 export const createAppointment = async (data: {
     userId: number;
@@ -6,7 +7,22 @@ export const createAppointment = async (data: {
     scheduledAt: Date;
     reason?: string;
 }) => {
-    return await prisma.appointment.create({ data });
+    const appointment = await prisma.appointment.create({ data });
+
+    const [user, dentist] = await Promise.all([
+        prisma.user.findUnique({ where: { id: data.userId } }),
+        prisma.dentist.findUnique({ where: { id: data.dentistId } }),
+    ]);
+
+    const datetime = new Date(data.scheduledAt).toLocaleString('en-US', {
+        timeZone: 'Asia/Singapore',
+    });
+
+    const message = `Appointment Confirmed\nDate & Time: ${datetime}\nReason: ${data.reason ?? 'General Checkup'}`;
+
+    await notify(user, dentist, message, 'Your Appointment is Confirmed', 'New Appointment Scheduled');
+
+    return appointment;
 };
 
 export const getAllAppointments = async () => {
@@ -40,10 +56,26 @@ export const getAppointmentForDentist = async (dentistId: number) => {
 }
 
 export const cancelAppointment = async (appointmentId: number) => {
-    return await prisma.appointment.update({
+    const appointment = await prisma.appointment.update({
         where: { id: appointmentId },
-        data: { status: 'cancelled' }
+        data: { status: 'cancelled' },
     });
+
+    // Fetch user and dentist for notification
+    const [user, dentist] = await Promise.all([
+        prisma.user.findUnique({ where: { id: appointment.userId } }),
+        prisma.dentist.findUnique({ where: { id: appointment.dentistId } }),
+    ]);
+
+    const datetime = new Date(appointment.scheduledAt).toLocaleString('en-US', {
+        timeZone: 'Asia/Singapore',
+    });
+
+    const message = `Your appointment scheduled for ${datetime} has been cancelled.`;
+
+    await notify(user, dentist, message, 'Appointment Cancelled', 'Appointment Cancelled');
+
+    return appointment;
 }
 
 export const rescheduleAppointment = async ({
@@ -58,14 +90,31 @@ export const rescheduleAppointment = async ({
     reason?: string;
 }, appointmentId: number
 ) => {
-    return await prisma.appointment.update({
+    const appointment = await prisma.appointment.update({
         where: { id: appointmentId },
         data: {
             userId,
             dentistId,
             scheduledAt,
             reason,
-        }
+            status: 'scheduled',
+        },
     });
+
+    // Fetch user and dentist for notification
+    const [user, dentist] = await Promise.all([
+        prisma.user.findUnique({ where: { id: userId } }),
+        prisma.dentist.findUnique({ where: { id: dentistId } }),
+    ]);
+
+    const datetime = new Date(scheduledAt).toLocaleString('en-US', {
+        timeZone: 'Asia/Singapore',
+    });
+
+    const message = `Your appointment has been rescheduled to ${datetime}.\nReason: ${reason ?? 'General Checkup'}`;
+
+    await notify(user, dentist, message, 'Appointment Rescheduled', 'Appointment Rescheduled');
+
+    return appointment;
 }
 

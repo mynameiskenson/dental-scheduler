@@ -10,6 +10,7 @@ const Dashboard = () => {
     const [appointments, setAppointments] = useState<Appointment[]>([]);
     const user = useSelector((state: RootState) => state.auth.user);
     const dispatch = useDispatch();
+    const [loading, setLoading] = useState(false);
 
     // Mobile view pagination
     const [mobilePage, setMobilePage] = useState(1)
@@ -48,10 +49,14 @@ const Dashboard = () => {
 
     const handleCancelAppointment = async (appointmentId: number) => {
         try {
+            setLoading(true);
             await cancellAppointment(appointmentId);
             setAppointments(prev => prev.filter(app => Number(app.id) !== appointmentId));
+            fetchAppointments();
         } catch (error) {
             console.error("Failed to cancel appointment:", error);
+        } finally {
+            setLoading(false);
         }
     };
 
@@ -155,7 +160,7 @@ const Dashboard = () => {
                                                 <td className="py-3 px-3 text-center space-x-2">
                                                     <button
                                                         onClick={() => dispatch(openAppointmentModal(appt))}
-                                                        disabled={isCancelled}
+                                                        disabled={isCancelled || loading}
                                                         hidden={isCancelled}
                                                         className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-1.5 rounded-xl text-sm"
                                                     >
@@ -163,11 +168,11 @@ const Dashboard = () => {
                                                     </button>
                                                     <button
                                                         onClick={() => handleCancelAppointment(Number(appt.id))}
-                                                        disabled={isCancelled}
+                                                        disabled={isCancelled || loading}
                                                         hidden={isCancelled}
                                                         className="bg-red-500 hover:bg-red-600 text-white px-4 py-1.5 rounded-xl text-sm"
                                                     >
-                                                        Cancel
+                                                        {loading ? "Cancelling..." : "Cancel"}
                                                     </button>
                                                 </td>
                                             </tr>
