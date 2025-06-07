@@ -89,7 +89,7 @@ const Dashboard = () => {
                                         <p><strong>Date:</strong> {new Date(appt.scheduledAt).toLocaleString("en-US", {
                                             dateStyle: "medium",
                                             timeStyle: "short",
-                                            timeZone: "Asia/Singapore",
+                                            timeZone: import.meta.env.TZ,
                                         })}</p>
                                         <p><strong>Status:</strong> {appt.status}</p>
                                         <div className="mt-3">
@@ -153,7 +153,7 @@ const Dashboard = () => {
                                                     {new Date(appt.scheduledAt).toLocaleString("en-US", {
                                                         dateStyle: "medium",
                                                         timeStyle: "short",
-                                                        timeZone: "Asia/Singapore",
+                                                        timeZone: import.meta.env.TZ,
                                                     })}
                                                 </td>
                                                 <td className="py-3 px-3 capitalize">{appt.status}</td>
