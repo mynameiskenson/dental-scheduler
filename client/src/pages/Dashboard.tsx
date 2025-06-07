@@ -11,6 +11,24 @@ const Dashboard = () => {
     const user = useSelector((state: RootState) => state.auth.user);
     const dispatch = useDispatch();
 
+    // Mobile view pagination
+    const [mobilePage, setMobilePage] = useState(1)
+    const mobileItemsPerPage = 2;
+
+    const mobileTotalPages = Math.ceil(appointments.length / mobileItemsPerPage);
+    const mobileLastIndex = mobilePage * mobileItemsPerPage;
+    const mobileFirstIndex = mobileLastIndex - mobileItemsPerPage;
+    const mobileAppointments = appointments.slice(mobileFirstIndex, mobileLastIndex);
+
+    // Desktop view pagination
+    const [currentPage, setCurrentPage] = useState(1);
+    const itemsPerPage = 6
+
+    const totalPages = Math.ceil(appointments.length / itemsPerPage);
+    const indexOfLastItem = currentPage * itemsPerPage;
+    const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+    const currentAppointment = appointments.slice(indexOfFirstItem, indexOfLastItem)
+
     const fetchAppointments = async () => {
         if (user) {
             try {
@@ -55,7 +73,7 @@ const Dashboard = () => {
                     <>
                         {/* Mobile view: stacked cards */}
                         <div className="sm:hidden space-y-4">
-                            {appointments.map((appt) => {
+                            {mobileAppointments.map((appt) => {
                                 const isCancelled = appt.status.toLowerCase() === "cancelled";
                                 return (
                                     <div
@@ -90,6 +108,20 @@ const Dashboard = () => {
                                     </div>
                                 );
                             })}
+                            <div className="sm:hidden mt-4 flex justify-center gap-2 text-white">
+                                {Array.from({ length: mobileTotalPages }, (_, i) => (
+                                    <button
+                                        key={i + 1}
+                                        onClick={() => setMobilePage(i + 1)}
+                                        className={`px-3 py-1 rounded-md border ${mobilePage === i + 1
+                                            ? "bg-blue-500 border-blue-600 text-white"
+                                            : "bg-white/10 border-white/20 hover:bg-white/20"
+                                            }`}
+                                    >
+                                        {i + 1}
+                                    </button>
+                                ))}
+                            </div>
                         </div>
 
                         {/* Desktop/tablet view: table layout */}
@@ -104,7 +136,7 @@ const Dashboard = () => {
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {appointments.map((appt) => {
+                                    {currentAppointment.map((appt) => {
                                         const isCancelled = appt.status.toLowerCase() === "cancelled";
                                         return (
                                             <tr
@@ -143,6 +175,20 @@ const Dashboard = () => {
                                     })}
                                 </tbody>
                             </table>
+                            <div className="mt-4 flex justify-center items-center gap-2 text-white">
+                                {Array.from({ length: totalPages }, (_, i) => (
+                                    <button
+                                        key={i + 1}
+                                        onClick={() => setCurrentPage(i + 1)}
+                                        className={`px-3 py-1 rounded-md border ${currentPage === i + 1
+                                            ? "bg-blue-500 border-blue-600 text-white"
+                                            : "bg-white/10 border-white/20 hover:bg-white/20"
+                                            }`}
+                                    >
+                                        {i + 1}
+                                    </button>
+                                ))}
+                            </div>
                         </div>
                     </>
                 )}

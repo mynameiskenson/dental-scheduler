@@ -4,19 +4,23 @@ import { getDentists, getDentistSlots, bookAppointment } from "@/services/bookSe
 import type { Dentist, Slot } from "@/types/BookingType";
 import { useSelector } from "react-redux";
 import type { RootState } from "@/state/store";
+import { useNavigate } from "react-router-dom";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 
-const Book = () => {
+
+const AppointmentForm = () => {
     const [dentists, setDentists] = useState<Dentist[]>([]);
     const [selectedDentistId, setSelectedDentistId] = useState<string>("");
     const [selectedDate, setSelectedDate] = useState<Date | null>(null);
     const [selectedSlot, setSelectedSlot] = useState<string | null>(null);
     const [slots, setSlots] = useState<Slot[]>([]);
     const [reason, setReason] = useState<string>("");
+
     const user = useSelector((state: RootState) => state.auth.user);
+    const navigate = useNavigate();
 
-
+    // Fetch dentists once
     useEffect(() => {
         const fetchDentists = async () => {
             try {
@@ -29,6 +33,7 @@ const Book = () => {
         fetchDentists();
     }, []);
 
+    // Fetch available slots when dentist or date changes
     useEffect(() => {
         if (selectedDentistId && selectedDate) {
             const fetchSlots = async () => {
@@ -38,9 +43,7 @@ const Book = () => {
                         selectedDate.getMonth(),
                         selectedDate.getDate()
                     ));
-
-                    const dateString = utcDate.toISOString().split("T")[0]; // Format date as YYYY-MM-DD
-
+                    const dateString = utcDate.toISOString().split("T")[0];
                     const data = await getDentistSlots(selectedDentistId, dateString);
                     setSlots(data);
                 } catch (error) {
@@ -48,8 +51,10 @@ const Book = () => {
                 }
             };
             fetchSlots();
+            setSelectedSlot(null); // reset slot on change
         } else {
             setSlots([]);
+            setSelectedSlot(null);
         }
     }, [selectedDentistId, selectedDate]);
 
@@ -59,17 +64,28 @@ const Book = () => {
             return;
         }
 
-        await bookAppointment({
-            userId: Number(user.id),
-            dentistId: Number(selectedDentistId),
-            scheduledAt: datetime,
-            reason: reason.trim() || undefined,
-        });
-        alert("Appointment booked successfully!");
-        setSelectedDentistId("");
-        setSelectedDate(new Date());
-        setSlots([]);
-        setReason("");
+        try {
+            await bookAppointment({
+                userId: Number(user.id),
+                dentistId: Number(selectedDentistId),
+                scheduledAt: datetime,
+                reason: reason.trim() || undefined,
+            });
+            alert("Appointment booked successfully!");
+
+            // Reset form
+            setSelectedDentistId("");
+            setSelectedDate(null);
+            setSelectedSlot(null);
+            setReason("");
+            setSlots([]);
+
+            // Navigate to dashboard
+            navigate("/dashboard");
+        } catch (error) {
+            console.error("Failed to book appointment:", error);
+            alert("Something went wrong. Please try again.");
+        }
     };
 
     return (
@@ -118,7 +134,7 @@ const Book = () => {
                     />
                 </div>
 
-                {/* Reason for visit */}
+                {/* Reason Textarea */}
                 <div className="mb-4">
                     <textarea
                         className="w-full p-3 rounded-xl border border-white/30 bg-transparent text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-blue-400"
@@ -128,29 +144,35 @@ const Book = () => {
                     />
                 </div>
 
-                {/* Slot Buttons */}
-                {slots && slots.filter(slot => slot.available).length > 0 ? (
-                    <div className="grid grid-cols-2 gap-4 mb-4">
-                        {slots.map((slot) =>
-                            slot.available ? (
-                                <button
-                                    type="button"
-                                    key={slot.datetime}
-                                    className={`p-2 rounded-xl text-white text-sm transition-colors ${selectedSlot === slot.datetime
-                                        ? "bg-green-600"
-                                        : "bg-blue-500 hover:bg-blue-600"
-                                        }`}
-                                    onClick={() => setSelectedSlot(slot.datetime)}
-                                >
-                                    {new Date(slot.datetime).toLocaleTimeString("en-US", {
-                                        hour: "2-digit",
-                                        minute: "2-digit",
-                                        hour12: true,
-                                        timeZone: "Asia/Singapore",
-                                    })}
-                                </button>
-                            ) : null
-                        )}
+                {/* Slot Select */}
+                {slots && slots.filter((slot) => slot.available).length > 0 ? (
+                    <div className="mb-4">
+                        <select
+                            className="w-full p-3 rounded-xl border border-white/30 bg-transparent text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-blue-400"
+                            value={selectedSlot ?? ""}
+                            onChange={(e) => setSelectedSlot(e.target.value)}
+                            required
+                        >
+                            <option value="" disabled>
+                                Select a time slot
+                            </option>
+                            {slots
+                                .filter((slot) => slot.available)
+                                .map((slot) => (
+                                    <option
+                                        key={slot.datetime}
+                                        value={slot.datetime}
+                                        className="text-black"
+                                    >
+                                        {new Date(slot.datetime).toLocaleTimeString("en-US", {
+                                            hour: "2-digit",
+                                            minute: "2-digit",
+                                            hour12: true,
+                                            timeZone: "Asia/Singapore",
+                                        })}
+                                    </option>
+                                ))}
+                        </select>
                     </div>
                 ) : (
                     <p className="text-white/70 italic text-center mb-4">
@@ -169,6 +191,6 @@ const Book = () => {
             </form>
         </div>
     );
-}
+};
 
-export default Book;
+export default AppointmentForm;
