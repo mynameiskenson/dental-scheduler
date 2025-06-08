@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useDispatch } from "react-redux";
-import { setUser } from "@/state/authSlice";
+import { loginThunk } from "@/state/authThunks";
 import type { AppDispatch } from "@/state/store";
 import { registerUser } from "@/services/authService";
 import { useNavigate } from "react-router-dom";
@@ -33,9 +33,9 @@ const Register = () => {
         } else {
             try {
                 setPhone(countryCode + normalizePhone(phone)); // Combine country code with phone number remove dashes/spaces
-                const userData = await registerUser({ fullName, email, passwordHash, phone });
-                dispatch(setUser(userData));
-                navigate("/dashboard"); // Redirect to dashboard or home page
+                await registerUser({ fullName, email, passwordHash, phone });
+                dispatch(loginThunk({ email: email, password: passwordHash }));
+                navigate("/"); // Redirect to dashboard or home page
             } catch (error) {
                 // Handle error (e.g., show error message)
                 alert("Register failed.");
