@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useDispatch } from "react-redux";
 import { setUser } from "@/state/authSlice";
+import type { AppDispatch } from "@/state/store";
 import { registerUser } from "@/services/authService";
 import { useNavigate } from "react-router-dom";
 
@@ -10,7 +11,7 @@ const Register = () => {
     const [passwordHash, setPassword] = useState("");
     const [countryCode, setCountryCode] = useState("");
     const [phone, setPhone] = useState("");
-    const dispatch = useDispatch();
+    const dispatch = useDispatch<AppDispatch>();
     const navigate = useNavigate();
 
     const isValidPhone = (phone: string) => {

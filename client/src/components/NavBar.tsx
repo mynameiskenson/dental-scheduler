@@ -80,7 +80,7 @@ export default function Navbar() {
             <div
                 className={`fixed top-16 left-0 w-full transform transition-all duration-300 ease-in-out 
           ${isOpen ? "opacity-100 translate-y-0" : "opacity-0 -translate-y-4 pointer-events-none"}
-          bg-white/1 backdrop-blur-md text-black flex flex-col items-center space-y-6 py-6 md:hidden z-20`}
+          bg-black/60 backdrop-blur text-white flex flex-col items-center space-y-6 py-6 md:hidden z-20`}
             >
                 <Link
                     to="/"
